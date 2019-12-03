@@ -23,6 +23,8 @@ class DeltaKinematics:
             stepper_configs[2], need_position_minmax = False,
             default_position_endstop=a_endstop)
         self.rails = [rail_a, rail_b, rail_c]
+        config.get_printer().register_event_handler("stepper_enable:motor_off",
+                                                    self._motor_off)
         # Setup stepper max halt velocity
         self.max_velocity, self.max_accel = toolhead.get_max_velocity()
         self.max_z_velocity = config.getfloat(
@@ -90,8 +92,8 @@ class DeltaKinematics:
     def _actuator_to_cartesian(self, spos):
         sphere_coords = [(t[0], t[1], sp) for t, sp in zip(self.towers, spos)]
         return mathutil.trilateration(sphere_coords, self.arm2)
-    def calc_position(self):
-        spos = [rail.get_commanded_position() for rail in self.rails]
+    def calc_tag_position(self):
+        spos = [rail.get_tag_position() for rail in self.rails]
         return self._actuator_to_cartesian(spos)
     def set_position(self, newpos, homing_axes):
         for rail in self.rails:
@@ -105,10 +107,8 @@ class DeltaKinematics:
         forcepos = list(self.home_position)
         forcepos[2] = -1.5 * math.sqrt(max(self.arm2)-self.max_xy2)
         homing_state.home_rails(self.rails, forcepos, self.home_position)
-    def motor_off(self, print_time):
+    def _motor_off(self, print_time):
         self.limit_xy2 = -1.
-        for rail in self.rails:
-            rail.motor_enable(print_time, 0)
         self.need_home = True
     def check_move(self, move):
         end_pos = move.end_pos
@@ -144,8 +144,8 @@ class DeltaKinematics:
             move.limit_speed(max_velocity * r, self.max_accel * r)
             limit_xy2 = -1.
         self.limit_xy2 = min(limit_xy2, self.slow_xy2)
-    def get_status(self):
-        return {'homed_axes': '' if self.need_home else 'XYZ'}
+    def get_status(self, eventtime):
+        return {'homed_axes': '' if self.need_home else 'xyz'}
 
     # Helper function for DELTA_CALIBRATE script
     def get_calibrate_params(self):

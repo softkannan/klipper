@@ -16,7 +16,8 @@ struct stepper_kinematics {
     double step_dist, commanded_pos;
     struct stepcompress *sc;
 
-    double last_flush_time;
+    double last_flush_time, last_move_time;
+    double scan_past, scan_future;
     struct trapq *tq;
     int active_flags;
 
@@ -30,9 +31,8 @@ double itersolve_check_active(struct stepper_kinematics *sk, double flush_time);
 void itersolve_set_trapq(struct stepper_kinematics *sk, struct trapq *tq);
 void itersolve_set_stepcompress(struct stepper_kinematics *sk
                                 , struct stepcompress *sc, double step_dist);
-double itersolve_calc_position_from_coord(struct stepper_kinematics *sk
-                                          , double x, double y, double z);
-void itersolve_set_commanded_pos(struct stepper_kinematics *sk, double pos);
+void itersolve_set_position(struct stepper_kinematics *sk
+                            , double x, double y, double z);
 double itersolve_get_commanded_pos(struct stepper_kinematics *sk);
 
 #endif // itersolve.h

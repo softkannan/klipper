@@ -51,9 +51,8 @@ defs_itersolve = """
     void itersolve_set_trapq(struct stepper_kinematics *sk, struct trapq *tq);
     void itersolve_set_stepcompress(struct stepper_kinematics *sk
         , struct stepcompress *sc, double step_dist);
-    double itersolve_calc_position_from_coord(struct stepper_kinematics *sk
+    void itersolve_set_position(struct stepper_kinematics *sk
         , double x, double y, double z);
-    void itersolve_set_commanded_pos(struct stepper_kinematics *sk, double pos);
     double itersolve_get_commanded_pos(struct stepper_kinematics *sk);
 """
 
@@ -92,10 +91,8 @@ defs_kin_winch = """
 
 defs_kin_extruder = """
     struct stepper_kinematics *extruder_stepper_alloc(void);
-    void extruder_add_move(struct trapq *tq, double print_time
-        , double accel_t, double cruise_t, double decel_t, double start_e_pos
-        , double start_v, double cruise_v, double accel
-        , double extra_accel_v, double extra_decel_v);
+    void extruder_set_pressure(struct stepper_kinematics *sk
+        , double pressure_advance, double half_smooth_time);
 """
 
 defs_serialqueue = """
