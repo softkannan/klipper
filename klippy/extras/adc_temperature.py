@@ -22,7 +22,7 @@ class PrinterADCtoTemperature:
         ppins = config.get_printer().lookup_object('pins')
         self.mcu_adc = ppins.setup_pin('adc', config.get('sensor_pin'))
         self.mcu_adc.setup_adc_callback(REPORT_TIME, self.adc_callback)
-        query_adc = config.get_printer().try_load_module(config, 'query_adc')
+        query_adc = config.get_printer().load_object(config, 'query_adc')
         query_adc.register_adc(config.get_name(), self.mcu_adc)
     def setup_callback(self, temperature_callback):
         self.temperature_callback = temperature_callback
@@ -132,7 +132,7 @@ class LinearResistance:
     def __init__(self, config, samples):
         self.pullup = config.getfloat('pullup_resistor', 4700., above=0.)
         try:
-            self.li = LinearInterpolate(samples)
+            self.li = LinearInterpolate([(r, t) for t, r in samples])
         except ValueError as e:
             raise config.error("adc_temperature %s in heater %s" % (
                 str(e), config.get_name()))
@@ -156,7 +156,7 @@ class CustomLinearResistance:
             if t is None:
                 break
             r = config.getfloat("resistance%d" % (i,))
-            self.samples.append((r, t))
+            self.samples.append((t, r))
     def create(self, config):
         lr = LinearResistance(config, self.samples)
         return PrinterADCtoTemperature(config, lr)
@@ -175,6 +175,14 @@ AD595 = [
     (420., 4.266), (440., 4.476), (460., 4.686), (480., 4.896)
 ]
 
+AD597 = [
+    (0., 0.), (10., .097), (20., .196), (25., .245), (30., .295),
+    (40., 0.395), (50., 0.496), (60., 0.598), (80., 0.802), (100., 1.005),
+    (120., 1.207), (140., 1.407), (160., 1.605), (180., 1.801), (200., 1.997),
+    (220., 2.194), (240., 2.392), (260., 2.592), (280., 2.794), (300., 2.996),
+    (320., 3.201), (340., 3.406), (360., 3.611), (380., 3.817), (400., 4.024),
+    (420., 4.232), (440., 4.440), (460., 4.649), (480., 4.857), (500., 5.066)
+]
 
 AD8494 = [
     (-180, -0.714), (-160, -0.658), (-140, -0.594), (-120, -0.523),
@@ -266,10 +274,16 @@ PT100 = [
     (1000, 4.48), (1100, 4.73)
 ]
 
+PT1000 = [
+    (0., 1000.), (100., 1385.1), (200., 1758.6), (300., 2120.5),
+    (400., 2470.9), (500., 2809.8),
+]
+
 def load_config(config):
     # Register default sensors
-    pheater = config.get_printer().lookup_object("heater")
+    pheaters = config.get_printer().load_object(config, "heaters")
     for sensor_type, params in [("AD595", AD595),
+                                ("AD597", AD597),
                                 ("AD8494", AD8494),
                                 ("AD8495", AD8495),
                                 ("AD8496", AD8496),
@@ -277,12 +291,17 @@ def load_config(config):
                                 ("PT100 INA826", PT100)]:
         func = (lambda config, params=params:
                 PrinterADCtoTemperature(config, LinearVoltage(config, params)))
-        pheater.add_sensor_factory(sensor_type, func)
+        pheaters.add_sensor_factory(sensor_type, func)
+    for sensor_type, params in [("PT1000", PT1000)]:
+        func = (lambda config, params=params:
+                PrinterADCtoTemperature(config,
+                                        LinearResistance(config, params)))
+        pheaters.add_sensor_factory(sensor_type, func)
 
 def load_config_prefix(config):
     if config.get("resistance1", None) is None:
         custom_sensor = CustomLinearVoltage(config)
     else:
         custom_sensor = CustomLinearResistance(config)
-    pheater = config.get_printer().lookup_object("heater")
-    pheater.add_sensor_factory(custom_sensor.name, custom_sensor.create)
+    pheaters = config.get_printer().load_object(config, "heaters")
+    pheaters.add_sensor_factory(custom_sensor.name, custom_sensor.create)

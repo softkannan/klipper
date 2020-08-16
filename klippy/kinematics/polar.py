@@ -9,7 +9,8 @@ import stepper, homing
 class PolarKinematics:
     def __init__(self, toolhead, config):
         # Setup axis steppers
-        stepper_bed = stepper.PrinterStepper(config.getsection('stepper_bed'))
+        stepper_bed = stepper.PrinterStepper(config.getsection('stepper_bed'),
+                                             units_in_radians=True)
         rail_arm = stepper.PrinterRail(config.getsection('stepper_arm'))
         rail_z = stepper.LookupMultiRail(config.getsection('stepper_z'))
         stepper_bed.setup_itersolve('polar_stepper_alloc', 'a')
@@ -29,16 +30,14 @@ class PolarKinematics:
             'max_z_velocity', max_velocity, above=0., maxval=max_velocity)
         self.max_z_accel = config.getfloat(
             'max_z_accel', max_accel, above=0., maxval=max_accel)
-        self.limit_z = [(1.0, -1.0)]
+        self.limit_z = (1.0, -1.0)
         self.limit_xy2 = -1.
         # Setup stepper max halt velocity
         max_halt_velocity = toolhead.get_max_axis_halt()
         stepper_bed.set_max_jerk(max_halt_velocity, max_accel)
         rail_arm.set_max_jerk(max_halt_velocity, max_accel)
         rail_z.set_max_jerk(max_halt_velocity, max_accel)
-    def get_steppers(self, flags=""):
-        if flags == "Z":
-            return self.rails[1].get_steppers()
+    def get_steppers(self):
         return list(self.steppers)
     def calc_tag_position(self):
         bed_angle = self.steppers[0].get_tag_position()
@@ -53,6 +52,9 @@ class PolarKinematics:
             self.limit_z = self.rails[1].get_range()
         if 0 in homing_axes and 1 in homing_axes:
             self.limit_xy2 = self.rails[0].get_range()[1]**2
+    def note_z_not_homed(self):
+        # Helper for Safe Z Home
+        self.limit_z = (1.0, -1.0)
     def _home_axis(self, homing_state, axis, rail):
         # Determine movement
         position_min, position_max = rail.get_range()
@@ -85,7 +87,7 @@ class PolarKinematics:
         if home_z:
             self._home_axis(homing_state, 2, self.rails[1])
     def _motor_off(self, print_time):
-        self.limit_z = [(1.0, -1.0)]
+        self.limit_z = (1.0, -1.0)
         self.limit_xy2 = -1.
     def check_move(self, move):
         end_pos = move.end_pos

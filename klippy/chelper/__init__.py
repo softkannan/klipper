@@ -16,8 +16,9 @@ COMPILE_CMD = ("gcc -Wall -g -O2 -shared -fPIC"
                " -o %s %s")
 SOURCE_FILES = [
     'pyhelper.c', 'serialqueue.c', 'stepcompress.c', 'itersolve.c', 'trapq.c',
-    'kin_cartesian.c', 'kin_corexy.c', 'kin_delta.c', 'kin_polar.c',
-    'kin_winch.c', 'kin_extruder.c',
+    'kin_cartesian.c', 'kin_corexy.c', 'kin_corexz.c', 'kin_delta.c',
+    'kin_polar.c', 'kin_rotary_delta.c', 'kin_winch.c', 'kin_extruder.c',
+    'kin_shaper.c',
 ]
 DEST_LIB = "c_helper.so"
 OTHER_FILES = [
@@ -48,9 +49,12 @@ defs_itersolve = """
         , double flush_time);
     double itersolve_check_active(struct stepper_kinematics *sk
         , double flush_time);
+    int32_t itersolve_is_active_axis(struct stepper_kinematics *sk, char axis);
     void itersolve_set_trapq(struct stepper_kinematics *sk, struct trapq *tq);
     void itersolve_set_stepcompress(struct stepper_kinematics *sk
         , struct stepcompress *sc, double step_dist);
+    double itersolve_calc_position_from_coord(struct stepper_kinematics *sk
+        , double x, double y, double z);
     void itersolve_set_position(struct stepper_kinematics *sk
         , double x, double y, double z);
     double itersolve_get_commanded_pos(struct stepper_kinematics *sk);
@@ -75,6 +79,10 @@ defs_kin_corexy = """
     struct stepper_kinematics *corexy_stepper_alloc(char type);
 """
 
+defs_kin_corexz = """
+    struct stepper_kinematics *corexz_stepper_alloc(char type);
+"""
+
 defs_kin_delta = """
     struct stepper_kinematics *delta_stepper_alloc(double arm2
         , double tower_x, double tower_y);
@@ -82,6 +90,12 @@ defs_kin_delta = """
 
 defs_kin_polar = """
     struct stepper_kinematics *polar_stepper_alloc(char type);
+"""
+
+defs_kin_rotary_delta = """
+    struct stepper_kinematics *rotary_delta_stepper_alloc(
+        double shoulder_radius, double shoulder_height
+        , double angle, double upper_arm, double lower_arm);
 """
 
 defs_kin_winch = """
@@ -95,12 +109,34 @@ defs_kin_extruder = """
         , double smooth_time);
 """
 
+defs_kin_shaper = """
+    enum INPUT_SHAPER_TYPE {
+        INPUT_SHAPER_ZV = 0,
+        INPUT_SHAPER_ZVD = 1,
+        INPUT_SHAPER_MZV = 2,
+        INPUT_SHAPER_EI = 3,
+        INPUT_SHAPER_2HUMP_EI = 4,
+        INPUT_SHAPER_3HUMP_EI = 5,
+    };
+
+    double input_shaper_get_step_generation_window(int shaper_type
+        , double shaper_freq, double damping_ratio);
+    int input_shaper_set_shaper_params(struct stepper_kinematics *sk
+        , int shaper_type_x, int shaper_type_y
+        , double shaper_freq_x, double shaper_freq_y
+        , double damping_ratio_x, double damping_ratio_y);
+    int input_shaper_set_sk(struct stepper_kinematics *sk
+        , struct stepper_kinematics *orig_sk);
+    struct stepper_kinematics * input_shaper_alloc(void);
+"""
+
 defs_serialqueue = """
     #define MESSAGE_MAX 64
     struct pull_queue_message {
         uint8_t msg[MESSAGE_MAX];
         int len;
         double sent_time, receive_time;
+        uint64_t notify_id;
     };
 
     struct serialqueue *serialqueue_alloc(int serial_fd, int write_only);
@@ -109,7 +145,8 @@ defs_serialqueue = """
     struct command_queue *serialqueue_alloc_commandqueue(void);
     void serialqueue_free_commandqueue(struct command_queue *cq);
     void serialqueue_send(struct serialqueue *sq, struct command_queue *cq
-        , uint8_t *msg, int len, uint64_t min_clock, uint64_t req_clock);
+        , uint8_t *msg, int len, uint64_t min_clock, uint64_t req_clock
+        , uint64_t notify_id);
     void serialqueue_pull(struct serialqueue *sq
         , struct pull_queue_message *pqm);
     void serialqueue_set_baud_adjust(struct serialqueue *sq
@@ -133,10 +170,10 @@ defs_std = """
 """
 
 defs_all = [
-    defs_pyhelper, defs_serialqueue, defs_std,
-    defs_stepcompress, defs_itersolve, defs_trapq,
-    defs_kin_cartesian, defs_kin_corexy, defs_kin_delta, defs_kin_polar,
-    defs_kin_winch, defs_kin_extruder
+    defs_pyhelper, defs_serialqueue, defs_std, defs_stepcompress,
+    defs_itersolve, defs_trapq, defs_kin_cartesian, defs_kin_corexy,
+    defs_kin_corexz, defs_kin_delta, defs_kin_polar, defs_kin_rotary_delta,
+    defs_kin_winch, defs_kin_extruder, defs_kin_shaper,
 ]
 
 # Return the list of file modification times

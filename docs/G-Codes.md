@@ -16,7 +16,8 @@ Klipper supports the following standard G-Code commands:
 - Set extrude factor override percentage: `M221 S<percent>`
 - Set acceleration: `M204 S<value>` OR `M204 P<value> T<value>`
   - Note: If S is not specified and both P and T are specified, then
-    the acceleration is set to the minimum of P and T.
+    the acceleration is set to the minimum of P and T. If only one of
+    P or T is specified, the command has no effect.
 - Get extruder temperature: `M105`
 - Set extruder temperature: `M104 [T<index>] [S<temperature>]`
 - Set extruder temperature and wait: `M109 [T<index>] S<temperature>`
@@ -58,6 +59,11 @@ Klipper also supports the following standard G-Code commands if the
 - Pause SD print: `M25`
 - Set SD position: `M26 S<offset>`
 - Report SD print status: `M27`
+
+In addition, the following extended commands are availble when the
+"virtual_sdcard" config section is enabled.
+- Load a file and start SD print: `SDCARD_PRINT_FILE FILENAME=<filename>`
+- Unload file and clear SD state:  `SDCARD_RESET_FILE`
 
 ## G-Code arcs
 
@@ -161,6 +167,18 @@ The following standard commands are supported:
   [SMOOTH_TIME=<pressure_advance_smooth_time>]`: Set pressure advance
   parameters. If EXTRUDER is not specified, it defaults to the active
   extruder.
+- `SET_EXTRUDER_STEP_DISTANCE [EXTRUDER=<config_name>] [DISTANCE=<distance>]`:
+  Set a new value for the provided extruder's step_distance. Value is
+  not retained on Klipper reset. Use with caution, small changes can
+  result in excessive pressure between extruder and hot end. Do proper
+  calibration steps with filament before use. If 'DISTANCE' value is
+  not included command will return current step distance.
+- `SET_STEPPER_ENABLE STEPPER=<config_name> ENABLE=[0|1]`: Enable or
+  disable only the given stepper. This is a diagnostic and debugging
+  tool and must be used with care. Disabling an axis motor does not
+  reset the homing information. Manually moving a disabled stepper may
+  cause the machine to operate the motor outside of safe limits. This
+  can lead to damage to axis components, hot ends, and print surface.
 - `STEPPER_BUZZ STEPPER=<config_name>`: Move the given stepper forward
   one mm and then backward one mm, repeated 10 times. This is a
   diagnostic tool to help verify stepper connectivity.
@@ -189,6 +207,12 @@ The following standard commands are supported:
   adjustment will only be made every BAND millimeters of z height - in
   that case the formula used is `value = start + factor *
   ((floor(z_height / band) + .5) * band)`.
+- `SET_DISPLAY_GROUP [DISPLAY=<display>] GROUP=<group>`: Set the
+  active display group of an lcd display. This allows to define
+  multiple display data groups in the config,
+  e.g. `[display_data <group> <elementname>]` and switch between them
+  using this extended gcode command. If DISPLAY is not specified it
+  defaults to "display" (the primary display).
 - `SET_IDLE_TIMEOUT [TIMEOUT=<timeout>]`:  Allows the user to set the
   idle timeout (in seconds).
 - `RESTART`: This will cause the host software to reload its config
@@ -220,6 +244,13 @@ The following command is available when an "output_pin" config section
 is enabled:
 - `SET_PIN PIN=config_name VALUE=<value>`
 
+## Manually Controlled Fans Commands
+
+The following command is available when a "fan_generic" config section
+is enabled:
+- `SET_FAN_SPEED FAN=config_name SPEED=<speed>` This command sets
+  the speed of a fan. <speed> must be between 0.0 and 1.0.
+
 ## Neopixel and Dotstar Commands
 
 The following command is available when "neopixel" or "dotstar" config
@@ -239,8 +270,9 @@ sections are enabled:
 
 The following commands are available when a "servo" config section is
 enabled:
-- `SET_SERVO SERVO=config_name [WIDTH=<seconds>] [ENABLE=<0|1>]`
-- `SET_SERVO SERVO=config_name [ANGLE=<degrees>] [ENABLE=<0|1>]`
+- `SET_SERVO SERVO=config_name [ANGLE=<degrees> | WIDTH=<seconds>]`:
+  Set the servo position to the given angle (in degrees) or pulse
+  width (in seconds). Use `WIDTH=0` to disable the servo output.
 
 ## Manual stepper Commands
 
@@ -248,23 +280,37 @@ The following command is available when a "manual_stepper" config
 section is enabled:
 - `MANUAL_STEPPER STEPPER=config_name [ENABLE=[0|1]]
   [SET_POSITION=<pos>] [SPEED=<speed>] [ACCEL=<accel>]
-  [MOVE=<pos> [STOP_ON_ENDSTOP=1]]`: This command will alter the state
-  of the stepper. Use the ENABLE parameter to enable/disable the
-  stepper. Use the SET_POSITION parameter to force the stepper to
-  think it is at the given position. Use the MOVE parameter to request
-  a movement to the given position. If SPEED and/or ACCEL is specified
-  then the given values will be used instead of the defaults specified
-  in the config file. If an ACCEL of zero is specified then no
-  acceleration will be preformed. If STOP_ON_ENDSTOP is specified then
-  the move will end early should the endstop report as triggered (use
-  STOP_ON_ENDSTOP=-1 to stop early should the endstop report not
-  triggered).
+  [MOVE=<pos> [STOP_ON_ENDSTOP=[1|2|-1|-2]] [SYNC=0]]`: This command
+  will alter the state of the stepper. Use the ENABLE parameter to
+  enable/disable the stepper. Use the SET_POSITION parameter to force
+  the stepper to think it is at the given position. Use the MOVE
+  parameter to request a movement to the given position. If SPEED
+  and/or ACCEL is specified then the given values will be used instead
+  of the defaults specified in the config file. If an ACCEL of zero is
+  specified then no acceleration will be performed. If
+  STOP_ON_ENDSTOP=1 is specified then the move will end early should
+  the endstop report as triggered (use STOP_ON_ENDSTOP=2 to complete
+  the move without error even if the endstop does not trigger, use -1
+  or -2 to stop when the endstop reports not triggered). Normally
+  future G-Code commands will be scheduled to run after the stepper
+  move completes, however if a manual stepper move uses SYNC=0 then
+  future G-Code movement commands may run in parallel with the stepper
+  movement.
+
+## Extruder stepper Commands
+
+The following command is available when an "extruder_stepper" config
+section is enabled:
+- `SYNC_STEPPER_TO_EXTRUDER STEPPER=<extruder_stepper config_name>
+  [EXTRUDER=<extruder config_name>]`: This command will cause the given
+  STEPPER to become synchronized to the given EXTRUDER, overriding
+  the extruder defined in the "extruder_stepper" config section.
 
 ## Probe
 
 The following commands are available when a "probe" config section is
 enabled:
-- `PROBE [PROBE_SPEED=<mm/s>] [SAMPLES=<count>]
+- `PROBE [PROBE_SPEED=<mm/s>] [LIFT_SPEED=<mm/s>] [SAMPLES=<count>]
   [SAMPLE_RETRACT_DIST=<mm>] [SAMPLES_TOLERANCE=<mm>]
   [SAMPLES_TOLERANCE_RETRIES=<count>]
   [SAMPLES_RESULT=median|average]`: Move the nozzle downwards until
@@ -285,7 +331,9 @@ enabled:
   helper script useful for calibrating the probe's z_offset. See the
   PROBE command for details on the optional probe parameters. See the
   MANUAL_PROBE command for details on the SPEED parameter and the
-  additional commands available while the tool is active.
+  additional commands available while the tool is active. Please note,
+  the PROBE_CALIBRATE command uses the speed variable to move in XY direction
+  as well as Z.
 
 ## BLTouch
 
@@ -293,7 +341,14 @@ The following command is available when a "bltouch" config section is
 enabled:
 - `BLTOUCH_DEBUG COMMAND=<command>`: This sends a command to the
   BLTouch. It may be useful for debugging. Available commands are:
-  pin_down, touch_mode, pin_up, self_test, reset.
+  `pin_down`, `touch_mode`, `pin_up`, `self_test`, `reset`,
+  (*1): `set_5V_output_mode`, `set_OD_output_mode`, `output_mode_store`
+
+  *** Note that the commands marked by (*1) are solely supported
+      by a BL-Touch V3.0 or V3.1(+)
+
+- `BLTOUCH_STORE MODE=<output_mode>`: This stores an output mode in the
+  EEPROM of a BLTouch V3.1 Available output_modes are: `5V`, `OD`
 
 See [Working with the BL-Touch](BLTouch.md) for more details.
 
@@ -335,15 +390,15 @@ section is enabled:
   specified then the manual probing tool is activated - see the
   MANUAL_PROBE command above for details on the additional commands
   available while this tool is active.
-- `BED_MESH_OUTPUT`: This command outputs the current probed z values
-  and current mesh values to the terminal.
-- `BED_MESH_MAP`: This command probes the bed in a similar fashion
-  to BED_MESH_CALIBRATE, however no mesh is generated.  Instead,
-  the probed z values are serialized to json and output to the
-  terminal.  This allows octoprint plugins to easily capture the
-  data and generate maps approximating the bed's surface.  Note
-  that although no mesh is generated, any currently stored mesh
-  will be cleared.
+- `BED_MESH_OUTPUT PGP=[<0:1>]`: This command outputs the current probed
+  z values and current mesh values to the terminal.  If PGP=1 is specified
+  the x,y coordinates generated by bed_mesh, along with their associated
+  indices, will be output to the terminal.
+- `BED_MESH_MAP`: Like to BED_MESH_OUTPUT, this command prints the current
+  state of the mesh to the terminal.  Instead of printing the values in a
+  human readable format, the state is serialized in json format. This allows
+  octoprint plugins to easily capture the data and generate height maps
+  approximating the bed's surface.
 - `BED_MESH_CLEAR`: This command clears the mesh and removes all
   z adjustment.  It is recommended to put this in your end-gcode.
 - `BED_MESH_PROFILE LOAD=<name> SAVE=<name> REMOVE=<name>`: This
@@ -554,3 +609,27 @@ been enabled:
     delay duration for the identified [delayed_gcode] and starts the timer
     for gcode execution.  A value of 0 will cancel a pending delayed gcode
     from executing.
+
+## Resonance compensation
+
+The following command is enabled if an [input_shaper] config section has
+been enabled:
+  - `SET_INPUT_SHAPER [SHAPER_FREQ_X=<shaper_freq_x>]
+    [SHAPER_FREQ_Y=<shaper_freq_y>] [DAMPING_RATIO_X=<damping_ratio_x>]
+    [DAMPING_RATIO_Y=<damping_ratio_y>] [SHAPER_TYPE=<shaper>]
+    [SHAPER_TYPE_X=<shaper_type_x>] [SHAPER_TYPE_Y=<shaper_type_y>]`: Modify
+    input shaper parameters. Note that SHAPER_TYPE parameter resets input shaper
+    for both X and Y axes even if different shaper types have been configured
+    in [input_shaper] section. SHAPER_TYPE cannot be used together with either
+    of SHAPER_TYPE_X and SHAPER_TYPE_Y parameters. See
+    [example-extras.cfg](https://github.com/KevinOConnor/klipper/tree/master/config/example-extras.cfg)
+    for more details on each of these parameters.
+
+## Temperature Fan Commands
+
+The following command is available when a "temperature_fan" config
+section is enabled:
+- `SET_TEMPERATURE_FAN_TARGET temperature_fan=<temperature_fan_name>
+  [target=<target_temperature>]`: Sets the target temperature for a
+  temperature_fan. If a target is not supplied, it is set to the
+  specified temperature in the config file.

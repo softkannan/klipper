@@ -6,6 +6,74 @@ All dates in this document are approximate.
 
 # Changes
 
+20200809: The menu system has been rewritten. If the menu has been
+customized then it will be necessary to update to the new
+configuration. See config/example-menu.cfg for configuration details
+and see klippy/extras/display/menu.cfg for examples.
+
+20200731:  The behavior of the `progress` attribute reported by
+the `virtual_sdcard` printer object has changed.  Progress is no
+longer reset to 0 when a print is paused.  It will now always report
+progress based on the internal file position, or 0 if no file is
+currently loaded.
+
+20200725: The servo `enable` config parameter and the SET_SERVO
+`ENABLE` parameter have been removed.  Update any macros to use
+`SET_SERVO SERVO=my_servo WIDTH=0` to disable a servo.
+
+20200608: The LCD display support has changed the name of some
+internal "glyphs".  If a custom display layout was implemented it may
+be necessary to update to the latest glyph names (see
+klippy/extras/display/display.cfg for a list of available glyphs).
+
+20200606: The pin names on linux mcu have changed. Pins now have names
+of the form `gpiochip<chipid>/gpio<gpio>`.  For gpiochip0 you can also
+use a short `gpio<gpio>`.  For example, what was previously referred
+to as `P20` now becomes `gpio20` or `gpiochip0/gpio20`.
+
+20200603: The default 16x4 LCD layout will no longer show the
+estimated time remaining in a print.  (Only the elapsed time will be
+shown.)  If the old behavior is desired one can customize the menu
+display with that information (see the description of display_data in
+config/example-extras.cfg for details).
+
+20200531: The default USB vendor/product id is now 0x1d50/0x614e.
+These new ids are reserved for Klipper (thanks to the openmoko
+project). This change should not require any config changes, but the
+new ids may appear in system logs.
+
+20200524: The default value for the tmc5160 pwm_freq field is now zero
+(instead of one).
+
+20200425: The gcode_macro command template variable `printer.heater`
+was renamed to `printer.heaters`.
+
+20200313: The default lcd layout for multi-extruder printers with a
+16x4 screen has changed.  The single extruder screen layout is now the
+default and it will show the currently active extruder.  To use the
+previous display layout set "display_group: _multiextruder_16x4" in
+the [display] section of the printer.cfg file.
+
+20200308: The default `__test` menu item was removed. If the config
+file has a custom menu then be sure to remove all references to this
+`__test` menu item.
+
+20200308: The menu "deck" and "card" options were removed. To
+customize the layout of an lcd screen use the new display_data config
+sections (see config/example-extras.cfg for the details).
+
+20200109:  The bed_mesh module now references the probe's location
+in for the mesh configuration.  As such, some configuration options
+have been renamed to more accurately reflect their intended
+functionality.  For rectangular beds, `min_point` and `max_point`
+have been renamed to `mesh_min` and `mesh_max` respectively.  For
+round beds, `bed_radius` has been renamed to `mesh_radius`.  A new
+`mesh_origin` option has also been added for round beds.  Note that
+these changes are also incompatible with previously saved mesh profiles.
+If an incompatible profile is detected it will be ignored and scheduled
+for removal.  The removal process can be completed by issuing the
+SAVE_CONFIG command. The user will need to re-calibrate each profile.
+
 20191218: The display config section no longer supports "lcd_type:
 st7567".  Use the "uc1701" display type instead - set "lcd_type:
 uc1701" and change the "rs_pin: some_pin" to "rst_pin: some_pin".  It
