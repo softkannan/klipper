@@ -15,8 +15,10 @@ communication with the Klipper developers.
 # Configuration and Tuning Guides
 
 - [Installation](Installation.md): Guide to installing Klipper.
-  - [config/example.cfg](https://github.com/KevinOConnor/klipper/tree/master/config/example.cfg)
-    a reference for the config file.
+- [Config Reference](Config_Reference.md): Description of config
+  parameters.
+  - [Rotation Distance](Rotation_Distance.md): Calculating the
+    rotation_distance stepper parameter.
 - [Config checks](Config_checks.md): Verify basic pin settings in the
   config file.
 - [Bed level](Bed_Level.md): Information on "bed leveling" in Klipper.
@@ -27,10 +29,14 @@ communication with the Klipper developers.
   - [BL-Touch](BLTouch.md): Configure a "BL-Touch" Z probe.
   - [Manual level](Manual_Level.md): Calibration of Z endstops (and
     similar).
+  - [Bed Mesh](Bed_Mesh.md): Bed height correction based on XY
+    locations.
   - [Endstop phase](Endstop_Phase.md): Stepper assisted Z endstop
     positioning.
 - [Resonance compensation](Resonance_Compensation.md): A tool to
   reduce ringing in prints.
+  - [Measuring resonances](Measuring_Resonances.md): Information on
+    using adxl345 accelerometer hardware to measure resonance.
 - [Pressure advance](Pressure_Advance.md): Calibrate extruder
   pressure.
 - [Slicers](Slicers.md): Configure "slicer" software for Klipper.
@@ -50,6 +56,8 @@ communication with the Klipper developers.
   implements motion.
 - [Protocol](Protocol.md): Information on the low-level messaging
   protocol between host and micro-controller.
+- [API Server](API_Server.md): Information on Klipper's command and
+  control API.
 - [MCU commands](MCU_Commands.md): A description of low-level commands
   implemented in the micro-controller software.
 - [Debugging](Debugging.md): Information on how to test and debug
@@ -62,6 +70,8 @@ communication with the Klipper developers.
 
 # Device Specific Documents
 
+- [SDCard Updates](SDCard_Updates.md): Flash a micro-controller by
+  copying a binary to an sdcard in the micro-controller.
 - [Raspberry Pi as Micro-controller](RPi_microcontroller.md): Details
   for controlling devices wired to the GPIO pins of a Raspberry Pi.
 - [Beaglebone](beaglebone.md): Details for running Klipper on the
