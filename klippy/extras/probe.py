@@ -154,6 +154,7 @@ class PrinterProbe:
         must_notify_multi_probe = not self.multi_probe_pending
         if must_notify_multi_probe:
             self.multi_probe_begin()
+        probexy = self.printer.lookup_object('toolhead').get_position()[:2]
         retries = 0
         positions = []
         while len(positions) < sample_count:
@@ -170,8 +171,7 @@ class PrinterProbe:
                 positions = []
             # Retract
             if len(positions) < sample_count:
-                liftpos = [None, None, pos[2] + sample_retract_dist]
-                self._move(liftpos, lift_speed)
+                self._move(probexy + [pos[2] + sample_retract_dist], lift_speed)
         if must_notify_multi_probe:
             self.multi_probe_end()
         # Calculate and return result
@@ -280,8 +280,9 @@ class ProbeEndstopWrapper:
         pin = config.get('pin')
         pin_params = ppins.lookup_pin(pin, can_invert=True, can_pullup=True)
         mcu = pin_params['chip']
-        mcu.register_config_callback(self._build_config)
         self.mcu_endstop = mcu.setup_pin('endstop', pin_params)
+        self.printer.register_event_handler('klippy:mcu_identify',
+                                            self._handle_mcu_identify)
         # Wrappers
         self.get_mcu = self.mcu_endstop.get_mcu
         self.add_stepper = self.mcu_endstop.add_stepper
@@ -291,7 +292,7 @@ class ProbeEndstopWrapper:
         self.query_endstop = self.mcu_endstop.query_endstop
         # multi probes state
         self.multi = 'OFF'
-    def _build_config(self):
+    def _handle_mcu_identify(self):
         kin = self.printer.lookup_object('toolhead').get_kinematics()
         for stepper in kin.get_steppers():
             if stepper.is_active_axis('z'):
