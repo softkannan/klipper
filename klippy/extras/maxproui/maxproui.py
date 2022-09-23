@@ -24,9 +24,11 @@ class TFTMenuItem:
         self.gcode = config.get('gcode', None)
         self.requestStayOnPage = config.get('requestStayOnPage', True)
         self.showLastPage = config.get('showLastPage', True)
+        
 
 class MAXPROUI:
     def __init__(self, config):
+        self.debug = False
         #Printer object, top level object 
         self.printer = config.get_printer()
         self.reactor = self.printer.get_reactor()
@@ -141,7 +143,10 @@ class MAXPROUI:
             return
         if cmd_delay == -1:
             cmd_delay = self.cmd_delay
-        logging.info("maxproui_response %s", data)
+
+        if self.debug:
+            logging.info("maxproui_response %s", data)
+
         curtime = self.reactor.monotonic()
         print_time = self.mcu.estimated_print_time(curtime)
         print_time = max(self._last_cmd_time + cmd_delay, print_time)
@@ -212,7 +217,10 @@ class MAXPROUI:
         if not self.gcode_queue:
             reactor = self.printer.get_reactor()
             reactor.register_callback(self.dispatch_gcode)
-        logging.info(script)
+
+        if self.debug:
+            logging.info(script)
+
         self.gcode_queue.append(script)
 
     def dispatch_gcode(self, eventtime):
@@ -339,7 +347,8 @@ class MAXPROUI:
         #get the pay load, refer sendf for why using data is index
         data = params['data']
 
-        logging.info("maxproui_received %s %s", params, data)
+        if self.debug:
+            logging.info("maxproui_received %s %s", params, data)
         
         # Parse the data received from the TFT display
         cmdData = self.parse_tft_command(data)
@@ -404,7 +413,10 @@ class MAXPROUI:
             self.lastUserSelection = ""
             self.selectedSDFile = ""
             curSelection = data.replace('A13','',1).strip()
-            logging.info("Current Selection : %s" % curSelection)
+            
+            if self.debug:
+                logging.info("Current Selection : %s" % curSelection)
+
             if curSelection.startswith('<'):
                 self.lastUserSelection = curSelection
                 if self.lastUserSelection == ANYCUBIC_TFT_MENU_SPECIAL_MENU:
