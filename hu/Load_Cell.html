@@ -13,7 +13,7 @@
     
     
       
-        <title>Funkciók - Klipper dokumentáció</title>
+        <title>Load Cells - Klipper dokumentáció</title>
       
     
     
@@ -74,7 +74,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#funkciok" class="md-skip">
+        <a href="#load-cells" class="md-skip">
           Kihagyás
         </a>
       
@@ -106,7 +106,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Funkciók
+              Load Cells
             
           </span>
         </div>
@@ -306,59 +306,11 @@
 
   
   
-    
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          Funkciók
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="Features.html" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="Features.html" class="md-nav__link">
         Funkciók
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Tartalomjegyzék">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Tartalomjegyzék
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#tovabbi-funkciok" class="md-nav__link">
-    További funkciók
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#lepes-teljesitmenyertek" class="md-nav__link">
-    Lépés Teljesítményérték
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1329,15 +1281,49 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#tovabbi-funkciok" class="md-nav__link">
-    További funkciók
+  <a href="#related-documentation" class="md-nav__link">
+    Related Documentation
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#lepes-teljesitmenyertek" class="md-nav__link">
-    Lépés Teljesítményérték
+  <a href="#using-load_cell_diagnostic" class="md-nav__link">
+    Using LOAD_CELL_DIAGNOSTIC
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#calibrating-a-load-cell" class="md-nav__link">
+    Calibrating a Load Cell
+  </a>
+  
+    <nav class="md-nav" aria-label="Calibrating a Load Cell">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#applying-a-known-force-or-load" class="md-nav__link">
+    Applying a Known Force or Load
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reading-force-data" class="md-nav__link">
+    Reading Force Data
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#taring-a-load-cell" class="md-nav__link">
+    Taring a Load Cell
   </a>
   
 </li>
@@ -1354,165 +1340,76 @@
             <article class="md-content__inner md-typeset">
               
                 
-<a href="https://github.com/Klipper3d/klipper/blob/master/docs/Features.md" title="Oldal szerkesztése" class="md-content__button md-icon">
+<a href="https://github.com/Klipper3d/klipper/blob/master/docs/Load_Cell.md" title="Oldal szerkesztése" class="md-content__button md-icon">
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"/></svg>
 </a>
 
 
-<h1 id="funkciok">Funkciók<a class="headerlink" href="#funkciok" title="Permanent link">&para;</a></h1>
-<p>A Klipper számos lenyűgöző tulajdonsággal rendelkezik:</p>
+<h1 id="load-cells">Load Cells<a class="headerlink" href="#load-cells" title="Permanent link">&para;</a></h1>
+<p>This document describes Klipper's support for load cells. Basic load cell functionality can be used to read force data and to weigh things like filament. A calibrated force sensor is an important part of a load cell based probe.</p>
+<h2 id="related-documentation">Related Documentation<a class="headerlink" href="#related-documentation" title="Permanent link">&para;</a></h2>
 <ul>
-<li>Nagy pontosságú léptető mozgás. A Klipper egy alkalmazásprocesszort (például egy olcsó Raspberry Pi-t) használ a nyomtató mozgásának kiszámításához. Az alkalmazásprocesszor határozza meg, hogy mikor lépjen a léptetőmotor, tömöríti ezeket az eseményeket, továbbítja őket a mikrokontrollerhez, majd a mikrokontroller végrehajtja az eseményeket a kért időpontban. Minden egyes léptető eseményt 25 mikroszekundum vagy annál jobb pontossággal ütemezünk. A szoftver nem használ kinematikai becsléseket (mint például a Bresenham-algoritmus) - ehelyett a gyorsulás fizikája és a gép kinematikájának fizikája alapján számítja ki a pontos lépésidőket. A pontosabb léptetőmozgás csendesebb és stabilabb nyomtató működést biztosít.</li>
-<li>Osztálya legjobb teljesítménye. A Klipper képes nagy lépési sebességet elérni mind az új, mind a régi mikrovezérlőkön. Még a régi 8 bites mikrovezérlők is képesek másodpercenként több mint 175K lépésszámot elérni. Újabb mikrovezérlőkön több millió lépés/másodperc is lehetséges. A nagyobb léptetési sebességek nagyobb nyomtatási sebességet tesznek lehetővé. A léptető esemény időzítése még nagy sebességnél is pontos marad, ami javítja az általános stabilitást.</li>
-<li>A Klipper támogatja a több mikrovezérlővel rendelkező nyomtatókat. Például egy mikrokontroller használható az extruder vezérlésére, míg egy másik a nyomtató fűtőberendezését, míg egy harmadik a nyomtató többi részét vezérli. A Klipper gazdaszoftver órajel-szinkronizációt valósít meg a mikrovezérlők közötti órajel-eltolódás figyelembevétele érdekében. A több mikrovezérlő engedélyezéséhez nincs szükség külön kódra, csak néhány extra sorra a konfigurációs fájlban.</li>
-<li>Konfiguráció egyszerű konfigurációs fájlon keresztül. Nincs szükség a mikrokontroller újrafrissítésére a beállítások megváltoztatásához. Az összes Klipper konfiguráció egy szabványos konfigurációs fájlban van tárolva, amely könnyen szerkeszthető. Ez megkönnyíti a hardver beállítását és karbantartását.</li>
-<li>A Klipper támogatja a "Smooth Pressure Advance" - egy olyan mechanizmust, amely figyelembe veszi a nyomást az extruderben. Ez csökkenti az extruder "szivárgását" és javítja a nyomtatási sarkok minőségét. A Klipper beavatkozása nem vezet be pillanatnyi extruder sebességváltozást, ami javítja az általános stabilitást és robusztusságot.</li>
-<li>A Klipper támogatja az "Input Shaping" funkciót a rezgések nyomtatási minőségre gyakorolt hatásának csökkentése érdekében. Ez csökkentheti vagy kiküszöbölheti a "gyűrődést" (más néven "szellemkép", "visszhang" vagy "hullámzás") a nyomatokon. Lehetővé teheti a gyorsabb nyomtatási sebesség elérését is, miközben a nyomtatás minősége továbbra is magas marad.</li>
-<li>A Klipper egy "interaktív megoldást" használ a pontos lépésidők kiszámításához egyszerű kinematikai egyenletekből. Ez megkönnyíti a Klipper átültetését új típusú robotokra, és az időzítést még összetett kinematika esetén is pontosan tartja (nincs szükség "vonalszegmentálásra").</li>
-<li>A Klipper hardverfüggetlen. Az alacsony szintű elektronikai hardvertől függetlenül ugyanazt a pontos időzítést kell kapnunk. A Klipper mikrokontroller kódját úgy tervezték, hogy hűen kövesse a Klipper gazdaszoftver által megadott időzítést (vagy jól láthatóan figyelmeztesse a felhasználót, ha nem képes erre). Ez megkönnyíti a rendelkezésre álló hardverek használatát, az új hardverekre való frissítést és a hardverbe vetett bizalmat.</li>
-<li>Átvihető kód. A Klipper ARM, AVR és PRU alapú mikrovezérlőkön is működik. A meglévő "RepRap" stílusú nyomtatók hardveres módosítás nélkül futtathatják a Klippert. Csak egy Raspberry Pi-t kell hozzáadni. A Klipper belső kódelrendezése megkönnyíti más mikrokontroller-architektúrák támogatását is.</li>
-<li>Egyszerűbb kód. A Klipper egy nagyon magas szintű nyelvet (Python) használ a legtöbb kódhoz. A kinematikai algoritmusok, a G-kód elemzése, a fűtési és termisztor algoritmusok stb. mind Pythonban íródnak. Ez megkönnyíti az új funkciók fejlesztését is.</li>
-<li>Egyéni programozható makrók. Új G-kód parancsok definiálhatók a nyomtató konfigurációs fájljában (nincs szükség kódmódosításra). Ezek a parancsok programozhatók lehetővé téve, hogy a nyomtató állapotától függően különböző műveleteket hajtsanak végre.</li>
-<li>Beépített API-kiszolgáló. A Klipper a szabványos G-kódos interfész mellett egy gazdag JSON-alapú alkalmazási felületet is támogat. Ez lehetővé teszi a programozók számára, hogy külső alkalmazásokat készítsenek a nyomtató részletes vezérlésével.</li>
+<li><a href="Config_Reference.html#load_cell">load_cell Config Reference</a></li>
+<li><a href="G-Codes.html#load_cell">load_cell G-Code Commands</a></li>
+<li><a href="Status_Reference.html#load_cell">load_cell Status Reference</a></li>
 </ul>
-<h2 id="tovabbi-funkciok">További funkciók<a class="headerlink" href="#tovabbi-funkciok" title="Permanent link">&para;</a></h2>
-<p>A Klipper számos szabványos 3D nyomtató funkciót támogat:</p>
+<h2 id="using-load_cell_diagnostic">Using <code>LOAD_CELL_DIAGNOSTIC</code><a class="headerlink" href="#using-load_cell_diagnostic" title="Permanent link">&para;</a></h2>
+<p>When you first connect a load cell its good practice to check for issues by running <code>LOAD_CELL_DIAGNOSTIC</code>. This tool collects 10 seconds of data from the load cell and resport statistics:</p>
+<div class="highlight"><pre><span></span><code>$ LOAD_CELL_DIAGNOSTIC
+// Collecting load cell data for 10 seconds...
+// Samples Collected: 3211
+// Measured samples per second: 332.0
+// Good samples: 3211, Saturated samples: 0, Unique values: 900
+// Sample range: [4.01% to 4.02%]
+// Sample range / sensor capacity: 0.00524%
+</code></pre></div>
+
+<p>Things you can check with this data:</p>
 <ul>
-<li>Számos webes felület áll rendelkezésre. Együttműködik a Mainsail, Fluidd, OctoPrint és másokkal. Ez lehetővé teszi a nyomtató vezérlését egy hagyományos webböngészővel. Ugyanaz a Raspberry Pi, amelyen a Klipper fut, a webes felületet is futtathatja.</li>
-<li>Standard G-kód támogatás. A tipikus "szeletelők" (SuperSlicer, Cura, PrusaSlicer, stb.) által előállított általános G-kód parancsok támogatottak.</li>
-<li>Több extruder támogatása. A közös fűtőberendezéssel rendelkező extrudereket és a független kocsikon (IDEX) lévő extrudereket is támogatják.</li>
-<li>Támogatja a cartesian, delta, corexy, corexz, hybrid-corexy, hybrid-corexz, rotary delta, polár és kábelcsörlő stílusú nyomtatókat.</li>
-<li>Automatic bed leveling support. Klipper can be configured for basic bed tilt detection or full mesh bed leveling. The bed mesh can be customized to the print size (adaptive bed mesh). If the bed uses multiple Z steppers then Klipper can also level by independently manipulating the Z steppers. Most Z height probes are supported, including BL-Touch probes and servo activated probes. Probes may be calibrated for axis twist compensation. If using an "eddy current probe" then one can utilize fast bed mesh scanning,</li>
-<li>Automatikus delta kalibráció támogatása. A kalibráló eszköz alapvető magassági kalibrálást, valamint továbbfejlesztett X és Y dimenzió kalibrálást végezhet. A kalibrálás elvégezhető Z magasságmérővel vagy kézi szintezővel.</li>
-<li>Futtatási idejű "objektum kizárása" támogatás. Beállítása esetén ez a modul megkönnyítheti egy több részből álló nyomtatás egyetlen objektumának törlését.</li>
-<li>Support for common temperature sensors (eg, common thermistors, AD595, AD597, AD849x, PT100, PT1000, MAX6675, MAX31855, MAX31856, MAX31865, BME280, HTU21D, DS18B20, AHT10, SHT3x, and LM75). Custom thermistors and custom analog temperature sensors can also be configured. One can monitor the internal micro-controller temperature sensor and the internal temperature sensor of a Raspberry Pi.</li>
-<li>Alapértelmezés szerint a fűtésvédelem engedélyezett.</li>
-<li>Support for standard fans, nozzle fans, and temperature controlled fans. No need to keep fans running when the printer is idle. Fan speed can be monitored on fans that have a tachometer. One can assign a "math formula" to a fan for automatic fan speed updating.</li>
-<li>A TMC2130, TMC2208/TMC2224, TMC2209, TMC2660 és TMC5160 léptetőmotor-meghajtók futásidejű konfigurációjának támogatása. A hagyományos léptetőmotor-meghajtók AD5206, MCP4451, MCP4728, MCP4018 és PWM-tűkön keresztül történő áramszabályozásának támogatása is biztosított.</li>
-<li>Közvetlenül a nyomtatóhoz csatlakoztatott általános LCD-kijelzők támogatása. Egy alapértelmezett menü is rendelkezésre áll. A kijelző és a menü tartalma a konfigurációs fájlon keresztül teljesen testreszabható.</li>
-<li>Állandó gyorsulás és "look-ahead" támogatás. Minden mozgás fokozatosan gyorsul fel álló helyzetből utazósebességre, majd lassul vissza álló helyzetbe. A beérkező G-kódos mozgásparancsok sorba kerülnek és elemzi őket - a hasonló irányú mozgások közötti gyorsulás optimalizálva lesz a nyomtatási hibák csökkentése és a teljes nyomtatási idő javítása érdekében.</li>
-<li>A Klipper egy olyan "léptetőfázis végállás" algoritmust valósít meg, amely javíthatja a tipikus végálláskapcsolók pontosságát. Megfelelő beállítás esetén javíthatja a nyomtatás első réteg tárgyasztalhoz tapadását.</li>
-<li>Száljelenlét-, szálmozgás- és szálszélesség-érzékelők támogatása.</li>
-<li>Support for measuring and recording acceleration using adxl345, mpu9250, mpu6050, lis2dw12, lis3dh, and icm20948 accelerometers.</li>
-<li>A nyomtató rezgésének és zajának csökkentése érdekében a rövid "cikcakk" mozgások csúcssebességének korlátozásának támogatása. További információkért lásd a <a href="Kinematics.html">Kinematika</a> dokumentumot.</li>
-<li>Számos gyakori nyomtatóhoz rendelkezésre állnak minta konfigurációs fájlok. Listát a <a href="https://github.com/Klipper3d/klipper/blob/master/config/">config könyvtárban</a> találod.</li>
+<li>The configured sample rate of the sensor should be close to the 'Measured samples per second' value. If it is not you may have a configuration or wiring issue.</li>
+<li>'Saturated samples' should be 0. If you have saturated samples it means the load sell is seeing more force than it can measure.</li>
+<li>'Unique values' should be a large percentage of the 'Samples Collected' value. If 'Unique values' is 1 it is very likely a wiring issue.</li>
+<li>Tap or push on the sensor while <code>LOAD_CELL_DIAGNOSTIC</code> runs. If things are working correctly ths should increase the 'Sample range'.</li>
 </ul>
-<p>A Klipper használata előtt olvasd el a <a href="Installation.html">telepítési</a> útmutatót.</p>
-<h2 id="lepes-teljesitmenyertek">Lépés Teljesítményérték<a class="headerlink" href="#lepes-teljesitmenyertek" title="Permanent link">&para;</a></h2>
-<p>Az alábbiakban a léptető teljesítménytesztek eredményeit mutatjuk be. A feltüntetett számok a mikrokontroller másodpercenkénti összes lépésszámát jelentik.</p>
-<table>
-<thead>
-<tr>
-<th>Mikrokontroller</th>
-<th>1 aktív léptető</th>
-<th>3 aktív léptető</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>16Mhz AVR</td>
-<td>157K</td>
-<td>99K</td>
-</tr>
-<tr>
-<td>20Mhz AVR</td>
-<td>196K</td>
-<td>123K</td>
-</tr>
-<tr>
-<td>SAMD21</td>
-<td>686K</td>
-<td>471K</td>
-</tr>
-<tr>
-<td>STM32F042</td>
-<td>814K</td>
-<td>578K</td>
-</tr>
-<tr>
-<td>Beaglebone PRU</td>
-<td>866K</td>
-<td>708K</td>
-</tr>
-<tr>
-<td>STM32G0B1</td>
-<td>1103K</td>
-<td>790K</td>
-</tr>
-<tr>
-<td>STM32F103</td>
-<td>1180K</td>
-<td>818K</td>
-</tr>
-<tr>
-<td>SAM3X8E</td>
-<td>1273K</td>
-<td>981K</td>
-</tr>
-<tr>
-<td>SAM4S8C</td>
-<td>1690K</td>
-<td>1385K</td>
-</tr>
-<tr>
-<td>LPC1768</td>
-<td>1923K</td>
-<td>1351K</td>
-</tr>
-<tr>
-<td>LPC1769</td>
-<td>2353K</td>
-<td>1622K</td>
-</tr>
-<tr>
-<td>SAM4E8E</td>
-<td>2500K</td>
-<td>1674K</td>
-</tr>
-<tr>
-<td>SAMD51</td>
-<td>3077K</td>
-<td>1885K</td>
-</tr>
-<tr>
-<td>AR100</td>
-<td>3529K</td>
-<td>2507K</td>
-</tr>
-<tr>
-<td>STM32F407</td>
-<td>3652K</td>
-<td>2459K</td>
-</tr>
-<tr>
-<td>STM32F446</td>
-<td>3913K</td>
-<td>2634K</td>
-</tr>
-<tr>
-<td>RP2040</td>
-<td>4000K</td>
-<td>2571K</td>
-</tr>
-<tr>
-<td>RP2350</td>
-<td>4167K</td>
-<td>2663K</td>
-</tr>
-<tr>
-<td>SAME70</td>
-<td>6667K</td>
-<td>4737K</td>
-</tr>
-<tr>
-<td>STM32H723</td>
-<td>7429K</td>
-<td>8619K</td>
-</tr>
-</tbody>
-</table>
-<p>Ha nem tudod, hogy egy adott lapon milyen mikrokontroller van, keresd meg a megfelelő <a href="https://github.com/Klipper3d/klipper/blob/master/config/">config fájlt</a>, és keresd meg a mikrokontroller nevét a fájl tetején lévő megjegyzésekben.</p>
-<p>A referenciaértékekkel kapcsolatos további részletek a <a href="Benchmarks.html">Referenciaértékek dokumentumban</a> találhatók.</p>
+<h2 id="calibrating-a-load-cell">Calibrating a Load Cell<a class="headerlink" href="#calibrating-a-load-cell" title="Permanent link">&para;</a></h2>
+<p>Load cells are calibrated using the <code>LOAD_CELL_CALIBRATE</code> command. This is an interactive calibration utility that walks you though a 3 step process:</p>
+<ol>
+<li>First use the <code>TARE</code> command to establish the zero force value. This is the <code>reference_tare_counts</code> config value.</li>
+<li>Next you apply a known load or force to the load cell and run the <code>CALIBRATE GRAMS=nnn</code> command. From this the <code>counts_per_gram</code> value is calculated. See <a href="#applying-a-known-force-or-load">the next section</a> for some suggestions on how to do this.</li>
+<li>Finally, use the <code>ACCEPT</code> command to save the results.</li>
+</ol>
+<p>You can cancel the calibration process at any time with <code>ABORT</code>.</p>
+<h3 id="applying-a-known-force-or-load">Applying a Known Force or Load<a class="headerlink" href="#applying-a-known-force-or-load" title="Permanent link">&para;</a></h3>
+<p>The <code>CALIBRATE GRAMS=nnn</code> step can be accomplished in a number of ways. If your load cell is under a platform like a bed or filament holder it might be easiest to put a known mass on the platform. E.g. you could use a couple of 1KG filament spools.</p>
+<p>If your load cell is in the printer's toolhead a different approach is easier. Put a digital scale on the printers bed and gently lower the toolhead onto the scale (or raise the bed into the toolhead if your bed moves). You may be able to do this using the <code>FORCE_MOVE</code> command. But more likely you will have to manually moving the z axis with the motors off until the toolhead presses on the scale.</p>
+<p>A good calibration force would ideally be a large percentage of the load cell's rated capacity. E.g. if you have a 5Kg load cell you would ideally calibrate it with a 5kg mass. This might work well with under-bed sensors that have to support a lot of weight. For toolhead probes this may not be a load that your printer bed or toolhead can tolerate without damage. Do try to use at least 1Kg of force, most printers should tolerate this without issue.</p>
+<p>When calibrating make careful note of the values reported:</p>
+<div class="highlight"><pre><span></span><code>$ CALIBRATE GRAMS=555
+// Calibration value: -2.78% (-59803108), Counts/gram: 73039.78739,
+Total capacity: +/- 29.14Kg
+</code></pre></div>
+
+<p>The <code>Total capacity</code> should be close to the theoretical rating of the load cell based on the sensor's capacity. If it is much larger you could have used a higher gain setting in the sensor or a more sensitive load cell. This isn't as critical for 32bit and 24bit sensors but is much more critical for low bit width sensors.</p>
+<h2 id="reading-force-data">Reading Force Data<a class="headerlink" href="#reading-force-data" title="Permanent link">&para;</a></h2>
+<p>Force data can be read with a GCode command:</p>
+<div class="highlight"><pre><span></span><code>LOAD_CELL_READ
+// 10.6g (1.94%)
+</code></pre></div>
+
+<p>Data is also continuously read and can be consumed from the load_cell printer object in a macro:</p>
+<div class="highlight"><pre><span></span><code>{% set grams = printer.load_cell.force_g %}
+</code></pre></div>
+
+<p>This provides an average force over the last 1 second, similar to how temperature sensors work.</p>
+<h2 id="taring-a-load-cell">Taring a Load Cell<a class="headerlink" href="#taring-a-load-cell" title="Permanent link">&para;</a></h2>
+<p>Taring, sometimes called zeroing, sets the current weight reported by the load_cell to 0. This is useful for measuring relative to a known weight. e.g. when measuring a filament spool, using <code>LOAD_CELL_TARE</code> sets the weight to 0. Then as filament is printed the load_cell will report the weight of the filament used.</p>
+<div class="highlight"><pre><span></span><code>LOAD_CELL_TARE
+// Load cell tare value: 5.32% (445903)
+</code></pre></div>
+
+<p>The current tare value is reported in the printers status and can be read in a macro:</p>
+<div class="highlight"><pre><span></span><code>{% set tare_counts = printer.load_cell.tare_counts %}
+</code></pre></div>
 
               
             </article>
@@ -1527,41 +1424,6 @@
       </main>
       
         <footer class="md-footer">
-  
-    <nav class="md-footer__inner md-grid" aria-label="Élőláb">
-      
-        
-        <a href="Overview.html" class="md-footer__link md-footer__link--prev" aria-label="Előző: Áttekintés" rel="prev">
-          <div class="md-footer__button md-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
-          </div>
-          <div class="md-footer__title">
-            <div class="md-ellipsis">
-              <span class="md-footer__direction">
-                Előző
-              </span>
-              Áttekintés
-            </div>
-          </div>
-        </a>
-      
-      
-        
-        <a href="FAQ.html" class="md-footer__link md-footer__link--next" aria-label="Következő: Gyakran ismételt kérdések" rel="next">
-          <div class="md-footer__title">
-            <div class="md-ellipsis">
-              <span class="md-footer__direction">
-                Következő
-              </span>
-              Gyakran ismételt kérdések
-            </div>
-          </div>
-          <div class="md-footer__button md-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4z"/></svg>
-          </div>
-        </a>
-      
-    </nav>
   
   <div class="md-footer-meta md-typeset">
     <div class="md-footer-meta__inner md-grid">
