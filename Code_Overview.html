@@ -414,10 +414,57 @@
   
   
   
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_7_1" type="checkbox" id="__nav_7_1" >
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_7_1">
+          Installation
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Installation" data-md-level="2">
+        <label class="md-nav__title" for="__nav_7_1">
+          <span class="md-nav__icon md-icon"></span>
+          Installation
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
     <li class="md-nav__item">
       <a href="Installation.html" class="md-nav__link">
         Installation
       </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="OctoPrint.html" class="md-nav__link">
+        OctoPrint for Klipper
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
     </li>
   
 
@@ -1338,6 +1385,20 @@
 
             
           
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="Load_Cell.html" class="md-nav__link">
+        Load Cells
+      </a>
+    </li>
+  
+
+            
+          
         </ul>
       </nav>
     </li>
@@ -1810,10 +1871,10 @@ should only need to update the host software.</p>
    be efficient as it is typically only called during homing and
    probing operations.</li>
 <li>Other methods. Implement the <code>check_move()</code>, <code>get_status()</code>,
-   <code>get_steppers()</code>, <code>home()</code>, and <code>set_position()</code> methods. These
-   functions are typically used to provide kinematic specific checks.
-   However, at the start of development one can use boiler-plate code
-   here.</li>
+   <code>get_steppers()</code>, <code>home()</code>, <code>clear_homing_state()</code>, and <code>set_position()</code>
+   methods. These functions are typically used to provide kinematic
+   specific checks. However, at the start of development one can use
+   boiler-plate code here.</li>
 <li>Implement test cases. Create a g-code file with a series of moves
    that can test important cases for the given kinematics. Follow the
    <a href="Debugging.html">debugging documentation</a> to convert this g-code file

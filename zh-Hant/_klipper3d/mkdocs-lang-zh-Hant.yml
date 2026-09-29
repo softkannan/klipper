@@ -106,7 +106,9 @@ nav:
   - Config_Changes.md
   - Contact.md
   - 安裝和配置:
-    - Installation.md
+    - Installation:
+      - Installation.md
+      - OctoPrint.md
     - 配置參考:
       - Config_Reference.md
       - Rotation_Distance.md
@@ -157,4 +159,5 @@ nav:
     - TSL1401CL_Filament_Width_Sensor.md
     - Hall_Filament_Width_Sensor.md
     - Eddy_Probe.md
+    - Load_Cell.md
   - Sponsors.md
