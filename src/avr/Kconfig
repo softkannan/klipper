@@ -149,4 +149,6 @@ config SIMULAVR
 
          If unsure, select "N".
 
+source "src/avr/maxproui/Kconfig"
+
 endif
